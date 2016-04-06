@@ -1,14 +1,15 @@
-from dronekit_sitl import SITL
 from pymavlink import mavutil
-import math, time
-from dronekit import LocationGlobal
+import math, time, os, sys
 from HTMLParser import HTMLParser
 import time
 from dronekit import connect, VehicleMode
 from multiprocessing import Process
 
 #/opt/piratebox/www/cgi-bin/data.pso
-#datafilename = os.environ["SHOUTBOX_CHATFILE"]
+CHATROOM_FILE = ""
+AUTOPILOT = None
+
+vehicle = None
 
 class MyHTMLParser(HTMLParser):
     saved = list()
@@ -24,6 +25,7 @@ class MyHTMLParser(HTMLParser):
         if data!=' ':
             self.saved.append(data)
 def condition_yaw(heading, relative=False):
+    global vehicle
     print "DEBUG:  sending yaw commmand with heading", heading
     if relative:
         is_relative=1 #yaw relative to direction of travel
@@ -45,7 +47,7 @@ def arm_and_takeoff(aTargetAltitude):
     """
     Arms vehicle and fly to aTargetAltitude.
     """
-
+    global vehicle
     print "Basic pre-arm checks"
     # Don't try to arm until autopilot is ready
     while not vehicle.is_armable:
@@ -75,6 +77,10 @@ def arm_and_takeoff(aTargetAltitude):
             break
         time.sleep(1)
 def setup_aircraft():
+    global vehicle
+    print "Connecting to vehicle on: ", AUTOPILOT
+    vehicle = connect(AUTOPILOT, wait_ready=True)
+
     vehicle.mode=VehicleMode("GUIDED")
     time.sleep(3)
     arm_and_takeoff(3)
@@ -96,7 +102,7 @@ def chatroom_scanner():
     try:
         while 1:
             print "yaw=", math.degrees(vehicle._yaw)
-            chatfile = open("./data.txt", 'r')
+            chatfile = open(CHATROOM_FILE, 'r')
             buf = chatfile.readline()
             print buf
 
@@ -114,21 +120,35 @@ def chatroom_scanner():
     except Exception, e:
         print "Exception in file read loop",str(e)
 
-print "Connecting to vehicle on: 'udp:127.0.0.1:14551'"
-vehicle = connect('udp:127.0.0.1:14551', wait_ready=True)
-setup_aircraft()
 
-proc = Process(target=chatroom_scanner, args=())
-proc.start()
-#p.join()
+if __name__ == "__main__":
+    print sys.argv[1]
+    if sys.argv.count>1:
+        if sys.argv[1]=="osx":
+            CHATROOM_FILE = "./data.txt"
+            AUTOPILOT = 'udp:127.0.0.1:14551'
+        elif sys.argv[1]=="pitest":
+            CHATROOM_FILE = "/opt/piratebox/www/cgi-bin/data.pso"
+            AUTOPILOT = 'udp:0.0.0.0:14551'
+        else:
+            CHATROOM_FILE  = os.environ["SHOUTBOX_CHATFILE"]
+            AUTOPILOT = '/dev/ttyACM0'
 
-print "RETURN TO MAIN EXECUTION"
+
+    setup_aircraft()
+
+    proc = Process(target=chatroom_scanner, args=())
+    proc.start()
+    #p.join()
+
+    print "RETURN TO MAIN EXECUTION"
 
 
 
 
 #EXTRA
-
+    #print "Connecting to vehicle on: 'udp:127.0.0.1:14551'"
+    #vehicle = connect('udp:127.0.0.1:14551', wait_ready=True)
 # Close vehicle object before exiting script
 #vehicle.close()
 

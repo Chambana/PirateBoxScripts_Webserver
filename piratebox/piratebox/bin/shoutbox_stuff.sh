@@ -43,3 +43,4 @@ chmod ug+rw  $SHOUTBOX_GEN_HTMLFILE
 #DiskUsage correct permissions
 chown $LIGHTTPD_USER:$LIGHTTPD_GROUP $DISK_GEN_HTMLFILE
 chmod ug+rw  $DISK_GEN_HTMLFILE
+

@@ -1,4 +1,4 @@
-NAME = piratebox-ws
+0NAME = piratebox-ws
 VERSION = 1.0.7
 ARCH = all
 PB_FOLDER=piratebox

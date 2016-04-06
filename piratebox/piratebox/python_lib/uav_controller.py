@@ -2,7 +2,7 @@ from pymavlink import mavutil
 import math, time, os, sys
 from HTMLParser import HTMLParser
 import time
-from dronekit import connect, VehicleMode
+from dronekit import connect, VehicleMode, LocationGlobalRelative
 from multiprocessing import Process
 
 #/opt/piratebox/www/cgi-bin/data.pso
@@ -42,7 +42,11 @@ def condition_yaw(heading, relative=False):
         is_relative, # param 4, relative offset 1, absolute angle 0
         0, 0, 0)    # param 5 ~ 7 not used
     # send command to vehicle
-    vehicle.send_mavlink(msg)
+    print "sending msg:", msg
+    try:
+        vehicle.send_mavlink(msg)
+    except Exception, e:
+        print "Exception sending mavlink yaw cmd", str(e)
 def arm_and_takeoff(aTargetAltitude):
     """
     Arms vehicle and fly to aTargetAltitude.
@@ -87,6 +91,8 @@ def setup_aircraft():
     time.sleep(3)
     #vehicle.simple_goto(LocationGlobal(-34.364114, 149.166022, 30))
     print "Initial yaw=", math.degrees(vehicle._yaw)
+    loc=LocationGlobalRelative(vehicle.location._lat, vehicle.location._lon, 10)
+    vehicle.simple_goto(location=loc, groundspeed=5)
 def check_for_uav_command(line):
     for entry in line:
        if entry.lower() == "turn right":
@@ -120,31 +126,39 @@ def chatroom_scanner():
     except Exception, e:
         print "Exception in file read loop",str(e)
 
+def run_app():
+    setup_aircraft()
+    chatroom_scanner()
 
 if __name__ == "__main__":
-    print sys.argv[1]
-    if sys.argv.count>1:
+    #print sys.argv[1]
+    #print sys.argv.count
+    if len(sys.argv)>1:
         if sys.argv[1]=="osx":
             CHATROOM_FILE = "./data.txt"
             AUTOPILOT = 'udp:127.0.0.1:14551'
         elif sys.argv[1]=="pitest":
-            CHATROOM_FILE = "/opt/piratebox/www/cgi-bin/data.pso"
+            CHATROOM_FILE  = "/opt/piratebox/www/cgi-bin/data.pso"
             AUTOPILOT = 'udp:0.0.0.0:14551'
-        else:
-            CHATROOM_FILE  = os.environ["SHOUTBOX_CHATFILE"]
-            AUTOPILOT = '/dev/ttyACM0'
+    else:
+        CHATROOM_FILE  = os.environ["SHOUTBOX_CHATFILE"]
+        AUTOPILOT = '/dev/ttyACM0'
 
 
-    setup_aircraft()
+    #setup_aircraft()
 
-    proc = Process(target=chatroom_scanner, args=())
+    #chatroom_scanner()
+
+    proc = Process(target=run_app, args=())
     proc.start()
     #p.join()
 
     print "RETURN TO MAIN EXECUTION"
 
 
-
+#TODO:  verify exec python uav_controller.py is working
+#TODO:  the yaw cmds are getting parsed from chat, but aren't causing vehicle changes in the SITL -- THIS IS BECAUSE OF THE PROCESS
+    #TODO: using a Global.  Move Setup Aircraft into the process so vehicle is local
 
 #EXTRA
     #print "Connecting to vehicle on: 'udp:127.0.0.1:14551'"

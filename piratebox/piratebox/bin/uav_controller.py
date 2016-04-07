@@ -6,8 +6,8 @@ from dronekit import connect, VehicleMode, LocationGlobalRelative
 from multiprocessing import Process
 
 #/opt/piratebox/www/cgi-bin/data.pso
-CHATROOM_FILE = ""
-AUTOPILOT = None
+CHATROOM_FILE = "/opt/piratebox/www/cgi-bin/data.pso"
+AUTOPILOT = 'udp:0.0.0.0:14551'
 
 vehicle = None
 
@@ -126,7 +126,7 @@ def chatroom_scanner():
     except Exception, e:
         print "Exception in file read loop",str(e)
 
-def run_app():
+def run_uav_controller():
     setup_aircraft()
     chatroom_scanner()
 
@@ -141,24 +141,30 @@ if __name__ == "__main__":
             CHATROOM_FILE  = "/opt/piratebox/www/cgi-bin/data.pso"
             AUTOPILOT = 'udp:0.0.0.0:14551'
     else:
-        CHATROOM_FILE  = os.environ["SHOUTBOX_CHATFILE"]
-        AUTOPILOT = '/dev/ttyACM0'
+        #TODO: environment variables not working for some reason, hardcoding default path
+        #CHATROOM_FILE  = os.environ["SHOUTBOX_CHATFILE"]
+        CHATROOM_FILE  = "/opt/piratebox/www/cgi-bin/data.pso"
+        if os.path.exists("/dev/ttyACM0"):
+            AUTOPILOT = '/dev/ttyACM0'
+        else:
+            AUTOPILOT = 'udp:0.0.0.0:14551'
 
+    print "Spawning process with these settings:"
+    print "AUTOPILOT=", AUTOPILOT
+    print "CHATROOM_FILE=", CHATROOM_FILE
 
-    #setup_aircraft()
-
-    #chatroom_scanner()
-
-    proc = Process(target=run_app, args=())
-    proc.start()
-    #p.join()
+    try:
+        proc = Process(target=run_uav_controller, args=())
+        proc.start()
+        #p.join()
+    except Exception, e:
+        print "EXCEPTION IN UAV_CONTROLLER:", str(e)
 
     print "RETURN TO MAIN EXECUTION"
 
 
 #TODO:  verify exec python uav_controller.py is working
-#TODO:  the yaw cmds are getting parsed from chat, but aren't causing vehicle changes in the SITL -- THIS IS BECAUSE OF THE PROCESS
-    #TODO: using a Global.  Move Setup Aircraft into the process so vehicle is local
+
 
 #EXTRA
     #print "Connecting to vehicle on: 'udp:127.0.0.1:14551'"

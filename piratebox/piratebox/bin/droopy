@@ -59,24 +59,24 @@
 
 import BaseHTTPServer
 import SocketServer
+import base64
 import cgi
+import copy
+import getopt
+import locale
+import macpath
+import mimetypes
+import ntpath
 import os
 import posixpath
-import macpath
-import ntpath
-import sys
-import getopt
-import mimetypes
-import copy
 import shutil
-import tempfile
 import socket
-import locale
-import urllib
-import base64
 import string
-from pickle import load,dump
+import sys
+import tempfile
+import urllib
 from ctypes import CDLL, c_char_p
+from pickle import load,dump
 
 LOGO = '''\
  _____
@@ -1145,6 +1145,18 @@ if __name__ == '__main__':
         print "Options saved in %s" % configfile()
 
     proto = 'https' if certfile else 'http'
+
+    #BEGIN UAV
+    from multiprocessing import Process
+    from piratebox.piratebox.bin import uav_controller
+
+    try:
+        proc = Process(target=uav_controller.run_uav_controller, args=())
+        proc.start()
+    except Exception, e:
+        print "Exception in uav controller", str(e)
+    #END UAV
+
     print "Files will be uploaded to %s" % directory
     print
     print ("HTTP server running... Check it out at %s://localhost:%d"

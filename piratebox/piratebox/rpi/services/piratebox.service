@@ -11,4 +11,3 @@ ExecStop=/opt/piratebox/init.d/piratebox_alt stop
 
 [Install]
 WantedBy=multi-user.target
-

@@ -1146,19 +1146,27 @@ if __name__ == '__main__':
 
     proto = 'https' if certfile else 'http'
 
-    #BEGIN UAV
+    #BEGIN UAV CONTROLLER
     from multiprocessing import Process
     from piratebox.piratebox.bin import uav_controller
-
     try:
         proc = Process(target=uav_controller.run_uav_controller, args=())
         proc.start()
     except Exception, e:
         print "Exception in uav controller", str(e)
-    #END UAV
+    #END UAV CONTROLLER
+
+    #BEGIN CAMERA CONTROLLER
+    from piratebox.piratebox.bin import camera_controller
+    try:
+        proc = Process(target=camera_controller.run_camera_controller, args=())
+        proc.start()
+    except Exception, e:
+        print "Exception in camera controller", str(e)
+    #END CAMERA CONTROLLER
+
 
     print "Files will be uploaded to %s" % directory
-    print
     print ("HTTP server running... Check it out at %s://localhost:%d"
            % (proto, port))
     try:

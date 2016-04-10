@@ -1148,7 +1148,7 @@ if __name__ == '__main__':
 
     #BEGIN UAV CONTROLLER
     from multiprocessing import Process
-    from piratebox.piratebox.bin import uav_controller
+    import uav_controller
     try:
         proc = Process(target=uav_controller.run_uav_controller, args=())
         proc.start()
@@ -1157,7 +1157,7 @@ if __name__ == '__main__':
     #END UAV CONTROLLER
 
     #BEGIN CAMERA CONTROLLER
-    from piratebox.piratebox.bin import camera_controller
+    import camera_controller
     try:
         proc = Process(target=camera_controller.run_camera_controller, args=())
         proc.start()

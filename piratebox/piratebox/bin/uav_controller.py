@@ -131,8 +131,6 @@ def run_uav_controller():
     chatroom_scanner()
 
 if __name__ == "__main__":
-    #print sys.argv[1]
-    #print sys.argv.count
     if len(sys.argv)>1:
         if sys.argv[1]=="osx":
             CHATROOM_FILE = "./data.txt"
@@ -163,43 +161,4 @@ if __name__ == "__main__":
     print "RETURN TO MAIN EXECUTION"
 
 
-#TODO:  verify exec python uav_controller.py is working
 
-
-#EXTRA
-    #print "Connecting to vehicle on: 'udp:127.0.0.1:14551'"
-    #vehicle = connect('udp:127.0.0.1:14551', wait_ready=True)
-# Close vehicle object before exiting script
-#vehicle.close()
-
-# print "Start simulator (SITL)"
-#
-# sitl = SITL()
-# sitl.download('copter', '3.3', verbose=True)
-# sitl_args = ['-I0', '--model', 'quad', '--home=-35.363261,149.165230,584,353']
-# sitl.launch(sitl_args, await_ready=True, restart=True)
-
-# Import DroneKit-Python
-
-# while 1:
-#     yaw_direction = raw_input('Type left or right to yaw UAV: ')
-#     if yaw_direction=='right':
-#         condition_yaw(heading=15, relative=True)
-#     elif yaw_direction=='left':
-#         condition_yaw(heading=345, relative=True)
-#     else:
-#         print "invalid input"
-#
-#     print "yaw=", math.degrees(vehicle._yaw)
-
-# Get some vehicle attributes (state)
-# print "Get some vehicle attribute values:"
-# print " GPS: %s" % vehicle.gps_0
-# print " Battery: %s" % vehicle.battery
-# print " Last Heartbeat: %s" % vehicle.last_heartbeat
-# print " Is Armable?: %s" % vehicle.is_armable
-# print " System status: %s" % vehicle.system_status.state
-# print " Mode: %s" % vehicle.mode.name    # settable
-# Shut down simulator
-#sitl.stop()
-#print("Completed")
